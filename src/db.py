@@ -3,17 +3,26 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from .constants import DB_NAME, BUY_WATCHLIST_COLLECTION
 
+# may need to use .env instead
 load_dotenv()
 
 
-def get_db():
-    client = MongoClient(os.getenv("MONGO_URI"))
-    return client[DB_NAME]
-
-
 def get_buy_watchlist_collection():
-    return get_db()[BUY_WATCHLIST_COLLECTION]
+    client = MongoClient(os.getenv("MONGO_URI"))
+    db = client[os.getenv("MONGO_DB_NAME")]
+    data = list(db[BUY_WATCHLIST_COLLECTION].find({}, {'_id': 0}))
+    client.close()
+    return data
 
 
 def add_to_watchlist(data):
-    get_buy_watchlist_collection().insert_one(data)
+    client = MongoClient(os.getenv("MONGO_URI"))
+    db = client[os.getenv("MONGO_DB_NAME")]
+    db[BUY_WATCHLIST_COLLECTION].insert_one(data)
+    client.close()
+
+
+def add_batch_to_watchlist(data):
+    client = MongoClient(os.getenv("MONGO_URI"))
+    db = client[os.getenv("MONGO_DB_NAME")]
+    db[BUY_WATCHLIST_COLLECTION].insert_many(data)
