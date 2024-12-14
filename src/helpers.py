@@ -1,4 +1,5 @@
-# tests/helpers.py
+import pandas as pd
+
 
 def transform_data(raw_data):
     structured_data = []
@@ -20,4 +21,10 @@ def transform_data(raw_data):
     return structured_data
 
 
+def transform_data_to_dataframe(data):
+    if data is None:
+        raise ValueError("Invalid input data")
 
+    df = pd.DataFrame(data)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+    return df

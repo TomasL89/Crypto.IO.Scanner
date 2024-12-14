@@ -1,5 +1,5 @@
-import unittest
 from src.technical_analysis import calculate_exponential_moving_average
+import unittest
 
 
 class TestTechnicalAnalysis(unittest.TestCase):
