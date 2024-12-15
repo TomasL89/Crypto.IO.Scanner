@@ -1,7 +1,7 @@
 import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from .constants import DB_NAME, BUY_WATCHLIST_COLLECTION, MONGO_URI, MONGO_DB_NAME
+from src.constants import DB_NAME, BUY_WATCHLIST_COLLECTION, MONGO_URI, MONGO_DB_NAME
 
 # may need to use .env instead
 load_dotenv()

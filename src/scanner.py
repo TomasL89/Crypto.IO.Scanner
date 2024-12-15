@@ -1,5 +1,4 @@
 from datetime import datetime
-from src.helpers import transform_data_to_dataframe
 from src.technical_analysis import calculate_exponential_moving_average
 
 
@@ -7,7 +6,6 @@ def scan_for_buy_signals(data):
     if data is None:
         raise ValueError("Invalid input data")
 
-    data = transform_data_to_dataframe(data)
     close_data = data['close'].tolist()
     ema_50 = calculate_exponential_moving_average(close_data, 50)
     ema_200 = calculate_exponential_moving_average(close_data, 200)
@@ -17,17 +15,22 @@ def scan_for_buy_signals(data):
     buy_signals = []
 
     for i in range(len(data)):
-        if data['close'][i] < ema_50[i] and data['close'][i] < ema_200[i]:
-            timestamp = datetime.fromtimestamp(data['close_time'][i] / 1000).strftime('%Y-%m-%d %H:%M:%S')
+        close = float(data['close'].iloc[i])
+        ema_50_val = float(ema_50[i])
+        ema_200_val = float(ema_200[i])
+        close_time = data['close_time'].iloc[i]
+
+        if close < ema_50_val and close < ema_200_val:
+            timestamp = datetime.fromtimestamp(close_time / 1000).strftime('%Y-%m-%d %H:%M:%S')
 
             buy_signals.append({
-                'epoch_time': data['close_time'][i],
+                'epoch_time': int(close_time),
                 'timestamp': timestamp,
-                'close': float(data['close'][i]),
-                'ema_50': float(ema_50[i]),
-                'ema_200': float(ema_200[i]),
-                'distance_from_50': float(ema_50[i] - data['close'][i]),
-                'distance_from_200': float(ema_200[i] - data['close'][i])
+                'close': close,
+                'ema_50': ema_50_val,
+                'ema_200': ema_200_val,
+                'distance_from_50': ema_50_val - close,
+                'distance_from_200': ema_200_val - close
             })
 
     return buy_signals

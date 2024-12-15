@@ -11,14 +11,14 @@ class TestBrokerData(unittest.TestCase):
         mock_get_binance_client.return_value = mock_client
         mock_client.get_exchange_info.return_value = {
             'symbols': [
-                {'symbol': 'BTCUSDT'},
-                {'symbol': 'ETHUSDT'},
-                {'symbol': 'BNBBTC'}
+                {'symbol': 'BTCUSDT', 'status': 'TRADING', 'quoteAsset': 'USDT'},
+                {'symbol': 'ETHUSDT', 'status': 'TRADING', 'quoteAsset': 'USDT'},
+                {'symbol': 'BNBBTC', 'status': 'TRADING', 'quoteAsset': 'BTC'},
             ]
         }
 
         symbols = get_list_of_symbols()
-        self.assertEqual(symbols, [{'symbol': 'BTCUSDT'}, {'symbol': 'ETHUSDT'}])
+        self.assertEqual(symbols, ['BTCUSDT', 'ETHUSDT'])
 
     @patch('src.broker_data.get_binance_client')
     def test_get_list_of_symbols_handles_no_usdt_pairs(self, mock_get_binance_client):
@@ -26,8 +26,8 @@ class TestBrokerData(unittest.TestCase):
         mock_get_binance_client.return_value = mock_client
         mock_client.get_exchange_info.return_value = {
             'symbols': [
-                {'symbol': 'BNBBTC'},
-                {'symbol': 'ETHBTC'}
+                {'symbol': 'BNBBTC', 'status': 'TRADING', 'quoteAsset': 'BTC'},
+                {'symbol': 'ETHBTC', 'status': 'TRADING', 'quoteAsset': 'BTC'}
             ]
         }
 

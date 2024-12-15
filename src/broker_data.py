@@ -16,16 +16,18 @@ def get_list_of_symbols():
     if 'symbols' not in exchange_info:
         return []
 
-    symbols = exchange_info['symbols']
-    # remove anything that isn't a USDT pair
-    symbols = [symbol for symbol in symbols if 'USDT' in symbol['symbol']]
+    symbols = []
+
+    for symbol in exchange_info['symbols']:
+        if symbol['status'] == 'TRADING' and symbol['quoteAsset'] == 'USDT':
+            symbols.append(symbol['symbol'])
     return symbols
 
 
 def get_hourly_data(symbol, start_date, end_date, limit=500):
     client = get_binance_client()
     kl = client.get_historical_klines(
-        symbol=f"{symbol}USDT",
+        symbol=f"{symbol}",
         interval=Client.KLINE_INTERVAL_1HOUR,
         start_str=start_date,
         end_str=end_date,
