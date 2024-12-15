@@ -1,37 +1,56 @@
 import unittest
-from src.broker_data import get_test_data
-import os
-import json
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, MagicMock
+from src.broker_data import get_list_of_symbols
+
 
 class TestBrokerData(unittest.TestCase):
 
-    @patch("builtins.open", new_callable=mock_open, read_data='[{"key": "value"}]')
-    @patch("os.path.join", return_value="tests/test_data.json")
-    def test_get_test_data_returns_correct_data(self, mock_join, mock_file):
-        expected_data = [{"key": "value"}]
-        result = get_test_data()
-        self.assertEqual(result, expected_data)
+    @patch('src.broker_data.get_binance_client')
+    def test_get_list_of_symbols_returns_usdt_pairs(self, mock_get_binance_client):
+        mock_client = MagicMock()
+        mock_get_binance_client.return_value = mock_client
+        mock_client.get_exchange_info.return_value = {
+            'symbols': [
+                {'symbol': 'BTCUSDT'},
+                {'symbol': 'ETHUSDT'},
+                {'symbol': 'BNBBTC'}
+            ]
+        }
 
-    @patch("builtins.open", new_callable=mock_open, read_data='[]')
-    @patch("os.path.join", return_value="tests/test_data.json")
-    def test_get_test_data_returns_empty_list_for_empty_file(self, mock_join, mock_file):
-        expected_data = []
-        result = get_test_data()
-        self.assertEqual(result, expected_data)
+        symbols = get_list_of_symbols()
+        self.assertEqual(symbols, [{'symbol': 'BTCUSDT'}, {'symbol': 'ETHUSDT'}])
 
-    @patch("builtins.open", new_callable=mock_open, read_data='invalid json')
-    @patch("os.path.join", return_value="tests/test_data.json")
-    def test_get_test_data_raises_exception_for_invalid_json(self, mock_join, mock_file):
-        with self.assertRaises(json.JSONDecodeError):
-            get_test_data()
+    @patch('src.broker_data.get_binance_client')
+    def test_get_list_of_symbols_handles_no_usdt_pairs(self, mock_get_binance_client):
+        mock_client = MagicMock()
+        mock_get_binance_client.return_value = mock_client
+        mock_client.get_exchange_info.return_value = {
+            'symbols': [
+                {'symbol': 'BNBBTC'},
+                {'symbol': 'ETHBTC'}
+            ]
+        }
 
-    @patch("builtins.open", new_callable=mock_open, read_data='[{"key": "value"}]')
-    @patch("os.path.join", return_value="tests/test_data.json")
-    @patch("os.path.dirname", return_value="src")
-    def test_get_test_data_constructs_correct_path(self, mock_dirname, mock_join, mock_file):
-        get_test_data()
-        mock_join.assert_called_with("src", "..", "tests", "test_data.json")
+        symbols = get_list_of_symbols()
+        self.assertEqual(symbols, [])
+
+    @patch('src.broker_data.get_binance_client')
+    def test_get_list_of_symbols_handles_empty_exchange_info(self, mock_get_binance_client):
+        mock_client = MagicMock()
+        mock_get_binance_client.return_value = mock_client
+        mock_client.get_exchange_info.return_value = {'symbols': []}
+
+        symbols = get_list_of_symbols()
+        self.assertEqual(symbols, [])
+
+    @patch('src.broker_data.get_binance_client')
+    def test_get_list_of_symbols_handles_missing_symbols_key(self, mock_get_binance_client):
+        mock_client = MagicMock()
+        mock_get_binance_client.return_value = mock_client
+        mock_client.get_exchange_info.return_value = {}
+
+        symbols = get_list_of_symbols()
+        self.assertEqual(symbols, [])
 
 
 if __name__ == '__main__':

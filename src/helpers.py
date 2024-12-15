@@ -28,3 +28,19 @@ def transform_data_to_dataframe(data):
     df = pd.DataFrame(data)
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     return df
+
+
+def transform_kline_data(data):
+    df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume', 'close_time',
+                                     'quote_asset_volume', 'number_of_trades', 'taker_buy_base_asset_volume',
+                                     'taker_buy_quote_asset_volume', 'ignore'])
+
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+    df.set_index('timestamp', inplace=True)
+    df['close'] = df['close'].astype(float)
+    df['open'] = df['open'].astype(float)
+    df['high'] = df['high'].astype(float)
+    df['low'] = df['low'].astype(float)
+    df['volume'] = df['volume'].astype(float)
+
+    return df

@@ -1,3 +1,5 @@
+binance
 pandas
 pymongo
 python-dotenv
+schedule
