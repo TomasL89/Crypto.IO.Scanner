@@ -22,6 +22,18 @@ def add_to_watchlist(data):
     client.close()
 
 
+def upsert_to_watchlist(data):
+    client = MongoClient(os.getenv(MONGO_URI))
+    db = client[os.getenv(MONGO_DB_NAME)]
+
+    db[BUY_WATCHLIST_COLLECTION].update_one(
+        {'symbol': data['symbol']},  # Filter to find the document by symbol
+        {'$set': data},  # Update the document with new data
+        upsert=True  # Insert the document if it does not exist
+    )
+    client.close()
+
+
 def add_batch_to_watchlist(data):
     client = MongoClient(os.getenv(MONGO_URI))
     db = client[os.getenv(MONGO_DB_NAME)]
